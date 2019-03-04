@@ -82,7 +82,413 @@ image: canvassy.png
   var network = new vis.Network(container, data, options);
 </script>
 
+~~~~
+import urllib
+from bs4 import BeautifulSoup
+import networkx as nx
+from pyvis.network import Network as net
+from pyvis import *
+from random import shuffle
+import time
+start_time = time.time()
 
+def find_li(element):
+    return [{li.a['href']: find_li(li)}
+            for ul in element('ul', recursive=False)
+            for li in ul('li', recursive=False)]
+
+    
+SecondLevel=[]
+d_find_and_replace = {'%27': "'", '/w/': ''}
+
+def helezooi(rel, url): 
+    d={k:v for element in rel for k,v in element.items()}
+    TopLevel = []
+    SecondLevel= []
+    repl={}
+    test1={}
+    url=url.split("/w/",1)[1]
+    new_url=url.replace("_", " ",1000).replace("/w/", "",1000)
+    new_url=new_url.replace("%27", "'").replace("%26", "&")
+    if new_url.find("Disaster/")>0:
+        new_url=new_url.replace("Recipe for Disaster/", "")
+    for item in d.keys():
+        for thing in list(d.keys()):
+            if thing.find("%27")>0:
+                new_thing=thing.replace("%27", "'")
+                d[new_thing] = d[thing]
+                del d[thing]
+                thing = new_thing
+        new_item=item.replace("_", " ",1000).replace("/w/", "",1000).replace("%26", "&").replace("Recipe_for_Disaster/", "")
+
+        repl[item]=new_item
+        TopLevel.append(item)
+        
+    d = {repl[k]: v for k, v in d.items()}
+    TopLevel = list(d.keys())
+    test1[new_url] = TopLevel
+    d2=[]
+
+    l2={}
+    l1={}
+    l3={}
+    
+    
+    
+    
+    
+    for topitem in TopLevel:
+        a= TopLevel.index(topitem)
+        d2=d.get(TopLevel[a])
+        d2={k:v for element in d2 for k,v in element.items()}
+        for thing in list(d2.keys()):
+            if thing.find("%27")>0:
+                new_thing=thing.replace("%27", "'")
+                d2[new_thing] = d2[thing]
+                del d2[thing]
+                thing = new_thing
+            newer_thing = thing.replace("_", " ",1000).replace("/w/", "",1000).replace("%26", "&").replace("Recipe_for_Disaster/", "")
+            repl[thing]=newer_thing
+    
+        d2 = {repl[k]: v for k, v in d2.items()}
+        l2.update(d2)
+        
+    
+            
+        test1[topitem] = list(d2.keys())
+        for key in d2.keys():
+            SecondLevel.append(key)
+    Thirdlevel=[]
+    ###########
+    for topitem in SecondLevel:
+        a= SecondLevel.index(topitem)
+        d3=l2.get(SecondLevel[a])
+        d3={k:v for element in d3 for k,v in element.items()}
+        for thing in list(d3.keys()):
+            if thing.find("%27")>0:
+                new_thing=thing.replace("%27", "'")
+                d3[new_thing] = d3[thing]
+                del d3[thing]
+                thing = new_thing
+            newer_thing = thing.replace("_", " ",1000).replace("/w/", "",1000).replace("%26", "&").replace("Recipe_for_Disaster/", "")
+            repl[thing]=newer_thing
+    
+        d3 = {repl[k]: v for k, v in d3.items()}
+        l1.update(d3)
+    
+            
+        test1[topitem] = list(d3.keys())
+        for key in d3.keys():
+            Thirdlevel.append(key)
+            
+    FourthLevel =[]
+            ###########
+    for topitem in Thirdlevel:
+        a= Thirdlevel.index(topitem)
+        d4=l1.get(Thirdlevel[a])
+        d4={k:v for element in d4 for k,v in element.items()}
+        for thing in list(d4.keys()):
+            if thing.find("%27")>0:
+                new_thing=thing.replace("%27", "'")
+                d4[new_thing] = d4[thing]
+                del d4[thing]
+                thing = new_thing
+            newer_thing = thing.replace("_", " ",1000).replace("/w/", "",1000).replace("%26", "&").replace("Recipe_for_Disaster/", "")
+            repl[thing]=newer_thing
+    
+        d4 = {repl[k]: v for k, v in d4.items()}
+        l3.update(d4)
+            
+        test1[topitem] = list(d4.keys())
+        for key in d4.keys():
+            FourthLevel.append(key)
+            
+    FifthLevel =[]
+    l2={}
+    for topitem in FourthLevel:
+        a= FourthLevel.index(topitem)
+        d5=l3.get(FourthLevel[a])
+        d5={k:v for element in d5 for k,v in element.items()}
+        for thing in list(d5.keys()):
+            if thing.find("%27")>0:
+                new_thing=thing.replace("%27", "'")
+                d5[new_thing] = d5[thing]
+                del d5[thing]
+                thing = new_thing
+            newer_thing = thing.replace("_", " ",1000).replace("/w/", "",1000).replace("%26", "&").replace("Recipe_for_Disaster/", "")
+            repl[thing]=newer_thing
+    
+        d5 = {repl[k]: v for k, v in d5.items()}
+        l2.update(d5)
+            
+        test1[topitem] = list(d5.keys())
+        for key in d5.keys():
+            FifthLevel.append(key)
+    return([test1,d, SecondLevel,Thirdlevel,FourthLevel,FifthLevel])
+
+
+
+def quest(url):
+    req = urllib.request.Request(url, headers={'User-Agent' : "Magic Browser"}) 
+    con = urllib.request.urlopen(req)
+    bs = BeautifulSoup(con, 'html.parser')
+    tab=bs.find("table",{"class": "questdetails plainlinks"})
+    qrow = tab.findAll("tr")[4::5]
+    extra=str(qrow)
+    qrow = qrow[0]
+    qrow = qrow.findAll("li")
+    if len(qrow)==0:
+        qrow = tab.findAll("tr")[4::5]
+        qrow = str(qrow[0])
+        if qrow.find("Completion of")>0:
+            if url.find("Disaster/")>0:
+                url=url.replace("Recipe_for_Disaster/", "")
+                url=url.split("/w/",1)[1]
+                new_url=url.replace("_", " ",1000).replace("/w/", "",1000).replace('"',"",1000)
+                new_url=new_url.replace("%27", "'").replace("%26", "&").replace("Recipe_for_Disaster/", "")
+                qrow=qrow.split("a href=",1)[1].split(" title",1)[0]
+                qrow=qrow.replace("_", " ",1000).replace("/w/", "",1000).replace('"',"",1000).replace("%27", "'").replace("%26", "&").replace("Recipe_for_Disaster/", "")
+                exceptionwow={}
+                exceptionwow[new_url] =[qrow]
+                exceptionnietverkeerd=exceptionwow
+                return(exceptionwow, exceptionnietverkeerd, [], [], [], [])
+        else:
+            return
+    qrow2=[]
+    for item in qrow:
+        qrow2.append(str(item))
+    qrow=[]
+    y=0
+    for item in qrow2:
+        if y== 0:
+            if any("Completion of the following quests:" in item or "Must have completed the following quests:" in item or "Completion (or partial" in item):
+                qrow.append(item)
+                y+=1
+            elif any("Completed" in item):
+                    url=url.split("/w/",1)[1]
+                    new_url=url.replace("_", " ",1000).replace("/w/", "",1000).replace('"',"",1000)
+                    new_url=new_url.replace("%27", "'").replace("%26", "&").replace("Recipe_for_Disaster/", "")
+                    item=item.split("a href=",1)[1].split(" title",1)[0]
+                    item=item.replace("_", " ",1000).replace("/w/", "",1000).replace('"',"",1000).replace("%27", "'").replace("%26", "&").replace("Recipe_for_Disaster/", "")
+                    exceptionwow={}
+                    exceptionwow[new_url] =[item]
+                    exceptionnietverkeerd=exceptionwow
+                    return(exceptionwow, exceptionnietverkeerd, [], [], [], [])
+            elif any("Completion of" in item):
+                    if url.find("Disaster/")>0:
+                        url=url.replace("Recipe_for_Disaster/", "")
+                    url=url.split("/w/",1)[1]
+                    new_url=url.replace("_", " ",1000).replace("/w/", "",1000).replace('"',"",1000)
+                    new_url=new_url.replace("%27", "'").replace("%26", "&").replace("Recipe_for_Disaster/", "")
+                    if extra.count("Completion") ==1:
+                        item=item.split("a href=",1)[1].split(" title",1)[0]
+                    elif extra.count("Completion") == 2:
+                        notfrustratingatall = tab.findAll("tr")
+                        notfrustratingatall = str(notfrustratingatall[4::5])
+                        item1=str(notfrustratingatall.split('<a href="/w/')[1].split('" title')[0])
+                        item2=str(notfrustratingatall.split('<a href="/w/',2)[2].split('" title')[0])
+                        item1=item1.replace("_", " ",1000).replace("/w/", "",1000).replace('"',"",1000).replace("%27", "'").replace("%26", "&").replace("Recipe_for_Disaster/", "")
+                        item2=item2.replace("_", " ",1000).replace("/w/", "",1000).replace('"',"",1000).replace("%27", "'").replace("%26", "&").replace("Recipe_for_Disaster/", "")
+                        exceptionwow={}
+                        exceptionwow[new_url] =[item1, item2]
+                        exceptionwow={}
+                        exceptionwow[new_url] =[item1, item2]
+                        exceptionnietverkeerd=exceptionwow
+                        return(exceptionwow, exceptionnietverkeerd, [], [], [], [])
+
+                    if extra.count("Completion") ==1:
+                        item=item.replace("_", " ",1000).replace("/w/", "",1000).replace('"',"",1000).replace("%27", "'").replace("%26", "&").replace("Recipe_for_Disaster/", "")
+                        exceptionwow={}
+                        exceptionwow[new_url] =[item]
+                        exceptionnietverkeerd=exceptionwow
+                        return(exceptionwow, exceptionnietverkeerd, [], [], [], [])
+            else:
+                    pass
+
+ 
+                   
+                   
+                   
+        elif y==1:
+            qrow.append(item)
+        else:
+            pass
+    if len(qrow)==0:
+        return
+    qrow = str(qrow[0])
+    qrow = qrow.split("\n",1)[1];
+    nestedlist=BeautifulSoup(qrow, 'html.parser')
+    a =(find_li(nestedlist))
+    test1,d,SecondLevel,ThirdLevel,FourthLevel,FifthLevel=helezooi(a, url)
+    return([test1,d,SecondLevel,ThirdLevel,FourthLevel,FifthLevel])
+    
+
+questListing = []
+final={}
+dfinal={}
+req1 = urllib.request.Request(("https://oldschool.runescape.wiki/w/Quests/List"), headers={'User-Agent' : "Magic Browser"}) 
+con1 = urllib.request.urlopen(req1)
+bs4 = BeautifulSoup(con1, "html.parser")
+bs4.prettify()
+table = bs4.findAll("table")
+
+f2p = table[1]
+f2pquests = []
+p2p = table[3]
+p2pquests = []
+
+for row in f2p.find_all("tr")[1:]:
+
+    col = row.find_all("td")
+    f2pquests.append(col[1])
+    
+f2pclean=[]
+for item in f2pquests:
+    for items in item.find_all('a',href=True):
+        f2pclean.append(items['href'])
+
+p2pclean=[]
+for row in p2p.find_all("tr")[1:]:
+
+    col = row.find_all("td")
+    p2pquests.append(col[1])
+    
+for item in p2pquests:
+    for items in item.find_all('a',href=True):
+        p2pclean.append(items['href'])
+    
+basestring="https://oldschool.runescape.wiki"
+Lookedat=[]
+
+shuffle(p2pclean)
+loose ={}
+for item in p2pclean:
+    if item == "/w/Roving_Elves" or item == "/w/Monkey_Madness_II":
+        pass
+    else:
+        check=item.replace("_", " ",1000).replace("/w/", "",1000)
+        if check in Lookedat:
+            linkeditem = str(basestring+item)
+    #        print("Looking at it anyways since wiki shit: "+linkeditem)
+            if quest(linkeditem) == None:
+                linkeditem=linkeditem.split("/w/",1)[1]
+                new_link=linkeditem.replace("_", " ",1000).replace("/w/", "",1000)
+                new_link=new_link.replace("%27", "'").replace("%26", "&")
+                loose[new_link] =[]
+                final.update(loose)
+                dfinal.update(loose)
+            
+        else:
+            linkeditem = str(basestring+item)
+            print("Looking at: "+linkeditem)
+            if quest(linkeditem) == None:
+                linkeditem=linkeditem.split("/w/",1)[1]
+                new_link=linkeditem.replace("_", " ",1000).replace("/w/", "",1000)
+                new_link=new_link.replace("%27", "'").replace("%26", "&")
+                loose[new_link] =[]
+                final.update(loose)
+                dfinal.update(loose)
+                
+            else:
+                test1,d,SecondLevel,ThirdLevel,FourthLevel,FifthLevel=quest(linkeditem)
+                for singlequest in SecondLevel:
+                    Lookedat.append(singlequest)
+                for singlequest in ThirdLevel:
+                    Lookedat.append(singlequest)
+                for singlequest in FourthLevel:
+                    Lookedat.append(singlequest)
+                for singlequest in FifthLevel:
+                    Lookedat.append(singlequest)
+                
+                final.update(test1)
+                dfinal.update(d)
+for item in f2pclean:
+    check=item.replace("_", " ",1000).replace("/w/", "",1000)
+    if check in Lookedat:
+        print("Skipped "+check)
+        pass
+    else:
+        linkeditem = str(basestring+item)
+        print("Looking at: "+linkeditem)
+        if quest(linkeditem) == None:
+            linkeditem=linkeditem.split("/w/",1)[1]
+            new_link=linkeditem.replace("_", " ",1000).replace("/w/", "",1000)
+            new_link=new_link.replace("%27", "'").replace("%26", "&")
+            loose[new_link] =[]
+            final.update(loose)
+            dfinal.update(loose)
+
+            
+        else:
+            test1,d,SecondLevel,ThirdLevel,FourthLevel,FifthLevel=quest(linkeditem)
+            for singlequest in SecondLevel:
+                Lookedat.append(singlequest)
+            for singlequest in ThirdLevel:
+                Lookedat.append(singlequest)
+            for singlequest in FourthLevel:
+                Lookedat.append(singlequest)
+            for singlequest in FifthLevel:
+                Lookedat.append(singlequest)
+
+            final.update(test1)
+            dfinal.update(d)
+
+print(final)
+final["Freeing King Awowogei"] += final['Recipe for Disaster#Awowogei']
+dfinal["Freeing King Awowogei"] += final['Recipe for Disaster#Awowogei']
+      
+final["Monkey Madness II"] += final['Enlightened Journey', 'The Eyes of Glouphrie', 'Freeing King Awowogei', 'Troll Stronghold']
+dfinal["Monkey Madness II"] += final['Enlightened Journey', 'The Eyes of Glouphrie', 'Freeing King Awowogei', 'Troll Stronghold']
+
+final["Roving Elves"] += final['Regicide','Waterfall Quest']
+dfinal["Roving Elves"] += final['Regicide','Waterfall Quest']
+
+
+final.pop('Recipe for Disaster#Awowogei', None)
+for v in final.values():
+    if ("Recipe for Disaster#Awowogei") in v:
+        v.remove(("Recipe for Disaster#Awowogei"))
+                  
+for item in  final["Defeating the Culinaromancer"]:
+    final["Recipe for Disaster"]+=[item]   
+
+final.pop('Defeating the Culinaromancer', None)
+
+g = nx.DiGraph(final)
+G = net(height="1000px", width="100%", bgcolor="#222222", font_color="white")
+G.from_nx(g)
+G.show_buttons(filter_=None)
+id=0
+
+
+for key in dfinal.keys():
+    if not dfinal[key]:
+        if (len(list(g.neighbors(key))))>0 or (len(list(g.predecessors(key))))>0 or (len(list(g.successors(key)))) or key==("Recipe for Disaster/Freeing Pirate Pete"):
+            print("didnt have to add ", key)
+            pass
+        else:
+            print("added: " ,key)
+            G.add_node(id, label=key)
+            id +=1
+
+
+
+
+
+        
+G.show("mygraph.html")
+e = int(time.time() - start_time)
+print("time taken: ", '{:02d}:{:02d}:{:02d}'.format(e // 3600, (e % 3600 // 60), e % 60))
+
+
+#for item in d2.keys():
+#    SecondLevel.append(item)
+    
+#print(TopLevel, SecondLevel)
+
+#print(NodeEdge)
+#plt(g)
+~~~~
 
 
 </body>
