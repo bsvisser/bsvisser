@@ -4,5 +4,5 @@ title: "Dynamic Network Visualization of OSRS quests"
 author: "Brent Visser"
 categories: documentation
 tags: [documentation]
-+image: canvassy.png
++image: canvassy.jpg
 ---
