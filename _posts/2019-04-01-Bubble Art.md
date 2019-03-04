@@ -1,6 +1,6 @@
 ---
 layout: post
-title: "Crafting methods visualized"
+title: "Bubble art"
 author: "Brent Visser"
 categories: facts, all
 tags: [bio]
