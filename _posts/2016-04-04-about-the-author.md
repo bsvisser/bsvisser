@@ -2,7 +2,7 @@
 layout: post
 title: "About me"
 author: "Brent Visser"
-categories: facts
+categories: facts, all
 tags: [bio]
 image: aboutme.jpg
 ---
