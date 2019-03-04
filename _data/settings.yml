@@ -7,7 +7,7 @@ disqus:
 google-ID: 'UA-135368467-1'
 
 menu:
-- {name: 'Sample Posts', folder: 'pages', file: 'sample-posts.html'}
+- {name: 'Posts', folder: 'pages', file: 'posts.html'}
 - {name: 'About', folder: 'pages', file: 'about.html'}
 - {name: 'Contact', folder: 'pages', file: 'contact.html'}
 
