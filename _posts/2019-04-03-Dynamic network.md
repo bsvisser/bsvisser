@@ -2,7 +2,7 @@
 layout: post
 title: "Dynamic Network Visualization of OSRS quests"
 author: "Brent Visser"
-categories: documentation
+categories: documentation all
 tags: [documentation]
 image: canvassy.png
 ---
