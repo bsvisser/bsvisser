@@ -82,7 +82,7 @@ image: canvassy.png
   var network = new vis.Network(container, data, options);
 </script>
 
-````
+~~~python
 import urllib
 from bs4 import BeautifulSoup
 import networkx as nx
@@ -488,6 +488,6 @@ print("time taken: ", '{:02d}:{:02d}:{:02d}'.format(e // 3600, (e % 3600 // 60),
 
 #print(NodeEdge)
 #plt(g)
-````
+~~~~
 
 </body>
