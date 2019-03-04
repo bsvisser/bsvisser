@@ -2,8 +2,8 @@
 layout: post
 title: "Crafting methods visualized"
 author: "Brent Visser"
-categories: facts, all
-tags: [bio]
+categories: documentation, all
+tags: [documentation]
 image: crafting.png
 ---
 

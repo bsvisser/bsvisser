@@ -2,8 +2,8 @@
 layout: post
 title: "Bubble art"
 author: "Brent Visser"
-categories: facts, all
-tags: [bio]
+categories: documentation, all
+tags: [documentation]
 image: max.png
 ---
 
